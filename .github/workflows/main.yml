@@ -14,6 +14,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: docker build . --file build/Dockerfile --tag  docker.pkg.github.com/aka-achu/go-web/sample:latest
-      - run: docker login -u aka-achu -p ${{ secrets.PKG_ACCESS_TOKEN }} docker.pkg.github.com
-      - run: docker push docker.pkg.github.com/aka-achu/go-web/sample:latest
+      - run: docker build . --file build/Dockerfile --tag runq/go-web:latest
+      - run: docker login -u akaachu -p ${{ secrets.PKG_ACCESS_TOKEN }}
+      - run: docker push runq/go-web:latest
