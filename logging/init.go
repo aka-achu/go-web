@@ -12,6 +12,7 @@ import (
 var (
 	AppLogger     *zap.SugaredLogger
 	RequestLogger *zap.SugaredLogger
+	RepoLogger    *zap.SugaredLogger
 )
 
 func getEncoder() zapcore.Encoder {
@@ -56,9 +57,28 @@ func Initialize() {
 		}
 	}
 
-	appLoggerCore := zapcore.NewCore(getEncoder(), getLogWriter(filepath.Join(path, "app.log")), zapcore.InfoLevel)
-	requestLoggerCore := zapcore.NewCore(getEncoder(), getLogWriter(filepath.Join(path, "request.log")), zapcore.InfoLevel)
-
-	AppLogger = zap.New(appLoggerCore, zap.AddCaller()).Sugar()
-	RequestLogger = zap.New(requestLoggerCore, zap.AddCaller()).Sugar()
+	AppLogger = zap.New(
+		zapcore.NewCore(
+			getEncoder(),
+			getLogWriter(filepath.Join(path, "app.log")),
+			zapcore.InfoLevel,
+		),
+		zap.AddCaller(),
+	).Sugar()
+	RequestLogger = zap.New(
+		zapcore.NewCore(
+			getEncoder(),
+			getLogWriter(filepath.Join(path, "request.log")),
+			zapcore.InfoLevel,
+		),
+		zap.AddCaller(),
+	).Sugar()
+	RepoLogger = zap.New(
+		zapcore.NewCore(
+			getEncoder(),
+			getLogWriter(filepath.Join(path, "repo.log")),
+			zapcore.InfoLevel,
+		),
+		zap.AddCaller(),
+	).Sugar()
 }

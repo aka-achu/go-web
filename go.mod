@@ -10,4 +10,6 @@ require (
 	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/subosito/gotenv v1.2.0
 	go.uber.org/zap v1.15.0
+	gorm.io/driver/sqlite v1.1.3
+	gorm.io/gorm v1.20.1
 )
