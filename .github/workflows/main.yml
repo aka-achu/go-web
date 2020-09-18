@@ -15,5 +15,5 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: docker build . --file build/Dockerfile --tag runq/go-web:latest
-      - run: docker login -u akaachu -p ${{ secrets.PKG_ACCESS_TOKEN }}
+      - run: docker login -u akaachu -p ${{ secrets.HUB_ACCESS_TOKEN }}
       - run: docker push runq/go-web:latest
