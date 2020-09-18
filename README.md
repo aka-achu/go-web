@@ -20,4 +20,4 @@ You can also:
  - [```gorilla/mux```](https://pkg.go.dev/github.com/gorilla/mux?tab=doc) - powerful URL router and dispatcher
  - [```rs/cors```](https://pkg.go.dev/github.com/rs/cors?tab=doc) - Cross Origin Resource Sharing W3 specification in Golang.
  - [```zap```](https://pkg.go.dev/go.uber.org/zap?tab=doc) - fast, structured, leveled logging
- - [```lumberjack.v2```](https://pkg.go.dev/gopkg.in/natefinch/lumberjack.v2?tab=doc) - rolling logger
+ - [```eidos```](https://github.com/aka-achu/eidos) - rolling logger
