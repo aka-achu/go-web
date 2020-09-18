@@ -1,9 +1,9 @@
 package logging
 
 import (
+	"github.com/aka-achu/eidos"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"gopkg.in/natefinch/lumberjack.v2"
 	"log"
 	"os"
 	"path/filepath"
@@ -22,13 +22,20 @@ func getEncoder() zapcore.Encoder {
 }
 
 func getLogWriter(fileName string) zapcore.WriteSyncer {
-	return zapcore.AddSync(&lumberjack.Logger{
-		Filename:   fileName,
-		MaxSize:    10,
-		MaxBackups: 2,
-		MaxAge:     30,
-		Compress:   true,
+	l, err := eidos.New(fileName, &eidos.Options{
+		Size:             10,
+		Period:           0,
+		RetentionPeriod:  30,
+		Compress:         true,
+		CompressionLevel: 0,
+		LocalTime:        true,
+	}, &eidos.Callback{
+
 	})
+	if err != nil {
+		panic(err)
+	}
+	return zapcore.AddSync(l)
 }
 func Initialize() {
 
