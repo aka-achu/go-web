@@ -3,6 +3,8 @@ package cmd
 import (
 	"github.com/aka-achu/go-web/controller"
 	"github.com/aka-achu/go-web/middleware"
+	"github.com/aka-achu/go-web/models"
+	"github.com/aka-achu/go-web/repo"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"log"
@@ -21,10 +23,12 @@ func Execute() {
 		cors.AllowAll().Handler,
 	)
 
-	var sampleController *controller.Sample
-	var sampleRouter = router.PathPrefix("/api/v1/sample").Subrouter()
+	db, err := repo.GetConnection()
+	if err != nil {
+		panic(err)
+	}
 
-	sampleRouter.HandleFunc("/hello", sampleController.HelloWorld)
+	InitUserRoute(router,controller.NewUserController(),repo.NewUserRepo(db) )
 
 	if os.Getenv("BUILD") == "Prod" {
 		log.Fatal(http.ListenAndServeTLS(
@@ -39,4 +43,10 @@ func Execute() {
 			router,
 		))
 	}
+}
+
+func InitUserRoute(r *mux.Router, userController models.UserController, userRepo models.UserRepo) {
+	var userRouter = r.PathPrefix("/api/v1/user").Subrouter()
+	userRouter.HandleFunc("/create", userController.Create(userRepo))
+	userRouter.HandleFunc("/fetch", userController.Fetch(userRepo))
 }
