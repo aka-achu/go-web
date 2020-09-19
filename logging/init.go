@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 )
 
+// Declaring logger variable for global access
 var (
 	AppLogger     *zap.SugaredLogger
 	RequestLogger *zap.SugaredLogger
@@ -36,8 +37,10 @@ func getLogWriter(fileName string) zapcore.WriteSyncer {
 	}
 	return zapcore.AddSync(l)
 }
+
 func Initialize() {
 
+	// Based on the application build, determining the logging path
 	var build = os.Getenv("BUILD")
 	var path string
 	if build == "Dev" {
@@ -49,12 +52,14 @@ func Initialize() {
 		log.Fatal("Unexpected BUILD value in .env file")
 	}
 
+	// Validating the existence of the logging path
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err := os.Mkdir(path, os.ModePerm); err != nil {
 			log.Fatal("Failed to create the folder for storing the logs", err)
 		}
 	}
 
+	// Initializing the declared logging variables
 	AppLogger = zap.New(
 		zapcore.NewCore(
 			getEncoder(),

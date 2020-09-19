@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// getResponseBody, prepares the response object
 func getResponseBody(code string, message string, data ...interface{}) *models.Response {
 	if len(data) == 0 {
 		return &models.Response{

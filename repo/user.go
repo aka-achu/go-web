@@ -9,16 +9,20 @@ type UserRepo struct {
 	db *gorm.DB
 }
 
+// NewUserRepo returns an UserRepo object
 func NewUserRepo(db *gorm.DB) *UserRepo {
 	return &UserRepo{
 		db: db,
 	}
 }
 
-func (UserRepo) Create(user *models.User) error {
-	return nil
+// Create, inserts a user record in the database
+func (r *UserRepo) Create(user *models.User) error {
+	return r.db.Table(user.TableName()).Create(user).Error
 }
 
-func (UserRepo) Fetch(userID string) (*models.User, error) {
-	return &models.User{}, nil
+// Fetch, return a user record from the database for a given user_id
+func (r *UserRepo) Fetch(userID string) (*models.User, error) {
+	var queryResult models.User
+	return &queryResult, r.db.Table(queryResult.TableName()).Where("id = ?", userID).Find(&queryResult).Error
 }

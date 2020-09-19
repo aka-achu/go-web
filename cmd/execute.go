@@ -13,26 +13,33 @@ import (
 	"path/filepath"
 )
 
+// Execute, initializes the web application
+// It creates a router,
+//    configures the middlewares,
+//    initializes the controllers,
+//    initialized the repo layers,
+//    registers the handle functions,
+//    starts the web server.
 func Execute() {
 
+	// Creating a new router
 	router := mux.NewRouter()
+	// Initializing the middlewares
 	router.Use(
 		middleware.NoAuthLogging,
 	)
+	// Handling cors access
 	router.Use(
 		cors.AllowAll().Handler,
 	)
-
+	// Getting a new database connection
 	db, err := repo.GetConnection()
 	if err != nil {
 		panic(err)
 	}
 
-	InitUserRoute(
-		router,
-		controller.NewUserController(),
-		repo.NewUserRepo(db),
-	)
+	// Registering handle functions
+	InitUserRoute(router, controller.NewUserController(), repo.NewUserRepo(db))
 
 	if os.Getenv("BUILD") == "Prod" {
 		log.Fatal(http.ListenAndServeTLS(
@@ -49,7 +56,10 @@ func Execute() {
 	}
 }
 
+// InitUserRoute, registers the handle function in the given router
 func InitUserRoute(r *mux.Router, userController models.UserController, userRepo models.UserRepo) {
+
+	// Creating a sub-router for common path
 	var userRouter = r.PathPrefix("/api/v1/user").Subrouter()
 	userRouter.HandleFunc("/create", userController.Create(userRepo))
 	userRouter.HandleFunc("/fetch", userController.Fetch(userRepo))
