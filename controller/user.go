@@ -5,19 +5,19 @@ import (
 	"net/http"
 )
 
-type UserController struct {}
+type UserController struct{}
 
-func NewUserController () *UserController {
+func NewUserController() *UserController {
 	return &UserController{}
 }
 
-func (c *UserController) Create (userRepo models.UserRepo) http.HandlerFunc {
+func (c *UserController) Create(userRepo models.UserRepo) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
 	}
 }
 
-func (c *UserController) Fetch (userRepo models.UserRepo) http.HandlerFunc {
+func (c *UserController) Fetch(userRepo models.UserRepo) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
 	}

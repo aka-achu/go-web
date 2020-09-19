@@ -28,7 +28,11 @@ func Execute() {
 		panic(err)
 	}
 
-	InitUserRoute(router,controller.NewUserController(),repo.NewUserRepo(db) )
+	InitUserRoute(
+		router,
+		controller.NewUserController(),
+		repo.NewUserRepo(db),
+	)
 
 	if os.Getenv("BUILD") == "Prod" {
 		log.Fatal(http.ListenAndServeTLS(

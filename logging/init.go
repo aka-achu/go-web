@@ -30,9 +30,7 @@ func getLogWriter(fileName string) zapcore.WriteSyncer {
 		Compress:         true,
 		CompressionLevel: 0,
 		LocalTime:        true,
-	}, &eidos.Callback{
-
-	})
+	}, &eidos.Callback{})
 	if err != nil {
 		panic(err)
 	}
