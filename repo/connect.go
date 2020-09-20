@@ -43,5 +43,11 @@ func GetConnection() (*gorm.DB, error) {
 		logging.RepoLogger.Errorf("Error while pinging the database. Error-%s", err.Error())
 		return nil, err
 	}
+
+	// Migrating schemas
+	if err := migrate(db); err != nil {
+		logging.RepoLogger.Errorf("Error while migrating schema. Error-%s", err.Error())
+		return nil, err
+	}
 	return db, nil
 }
