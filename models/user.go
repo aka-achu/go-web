@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"gorm.io/gorm"
 	"net/http"
 	"os"
 )
@@ -9,10 +10,13 @@ import (
 // User, object structure of the user entity
 type User struct {
 	ID         string `json:"id"`
-	FirstName  string `json:"first_name"`
-	LastName   string `json:"last_name"`
-	EmployeeID string `json:"employee_id"`
-	Age        int    `json:"age"`
+	UserName   string `json:"user_name"    validate:"required"`
+	Password   string `json:"password"     validate:"required"`
+	FirstName  string `json:"first_name"   validate:"required"`
+	LastName   string `json:"last_name"    validate:"required"`
+	EmployeeID string `json:"employee_id"  validate:"required"`
+	Age        int    `json:"age"          validate:"required"`
+	gorm.Model
 }
 
 // UserRepo is a template for the user repo method implementation

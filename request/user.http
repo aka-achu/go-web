@@ -1,0 +1,12 @@
+### User creation request
+POST http://0.0.0.0:8082/api/v1/user/create
+Content-Type: application/json
+
+{
+  "user_name": "aka-achu",
+  "password" : "password",
+  "first_name": "Achyuta",
+  "last_name": "Das",
+  "employee_id": "EMP001",
+  "age": 23
+}
