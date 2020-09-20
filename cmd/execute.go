@@ -5,6 +5,7 @@ import (
 	"github.com/aka-achu/go-web/middleware"
 	"github.com/aka-achu/go-web/models"
 	"github.com/aka-achu/go-web/repo"
+	"github.com/aka-achu/go-web/service"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"log"
@@ -18,6 +19,7 @@ import (
 //    configures the middlewares,
 //    initializes the controllers,
 //    initialized the repo layers,
+//    initialized the service layers,
 //    registers the handle functions,
 //    starts the web server.
 func Execute() {
@@ -39,7 +41,7 @@ func Execute() {
 	}
 
 	// Registering handle functions
-	InitUserRoute(router, controller.NewUserController(), repo.NewUserRepo(db))
+	InitUserRoute(router, controller.NewUserController(), repo.NewUserRepo(db), service.NewUserService())
 
 	if os.Getenv("BUILD") == "Prod" {
 		log.Fatal(http.ListenAndServeTLS(
@@ -57,10 +59,15 @@ func Execute() {
 }
 
 // InitUserRoute, registers the handle function in the given router
-func InitUserRoute(r *mux.Router, userController models.UserController, userRepo models.UserRepo) {
+func InitUserRoute(
+	r *mux.Router,
+	userController models.UserController,
+	userRepo models.UserRepo,
+	userService models.UserService,
+) {
 
 	// Creating a sub-router for common path
 	var userRouter = r.PathPrefix("/api/v1/user").Subrouter()
-	userRouter.HandleFunc("/create", userController.Create(userRepo))
-	userRouter.HandleFunc("/fetch", userController.Fetch(userRepo))
+	userRouter.HandleFunc("/create", userController.Create(userRepo, userService)).Methods("POST")
+	userRouter.HandleFunc("/fetch", userController.Fetch(userRepo, userService)).Methods("GET")
 }

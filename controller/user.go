@@ -6,7 +6,6 @@ import (
 	"github.com/aka-achu/go-web/models"
 	"github.com/aka-achu/go-web/response"
 	"github.com/aka-achu/go-web/utility"
-	"github.com/google/uuid"
 	"net/http"
 )
 
@@ -19,7 +18,7 @@ func NewUserController() *UserController {
 }
 
 // Create returns a handle function to process a user creation request
-func (c *UserController) Create(userRepo models.UserRepo) http.HandlerFunc {
+func (c *UserController) Create(userRepo models.UserRepo, userService models.UserService) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var userCreationRequest models.User
 		// Getting the request tracing id from the request context
@@ -43,24 +42,21 @@ func (c *UserController) Create(userRepo models.UserRepo) http.HandlerFunc {
 			return
 		}
 
-		userCreationRequest.ID = uuid.New().String()
-		userCreationRequest.Password = utility.Hash([]byte(userCreationRequest.Password))
-
-		if err := userRepo.Create(&userCreationRequest); err != nil {
-			logging.RepoLogger.Errorf("Failed to create the request user. Error-%v TraceID-%s",
+		// Using the user creation service to create the requested user for the application
+		if user, err := userService.Create(&userCreationRequest, userRepo, requestTraceID); err != nil {
+			logging.AppLogger.Errorf("Failed to create the requested user. Error-%v TraceID-%s",
 				err, requestTraceID)
-			response.BadRequest(w, "102", err.Error())
+			response.InternalServerError(w, "102", err.Error())
 		} else {
-			logging.RepoLogger.Errorf("Successfully created the requested user.TraceID-%s",
-				requestTraceID)
-			userCreationRequest.Password = ""
-			response.Success(w, "103", "Successful creation of user", userCreationRequest)
+			logging.AppLogger.Errorf("Failed to validate the request body. Error-%v TraceID-%s",
+				err, requestTraceID)
+			response.Success(w, "103","Successful creation of requested user", user)
 		}
 	}
 }
 
 // Fetch returns a handle function to process a user fetch request
-func (c *UserController) Fetch(userRepo models.UserRepo) http.HandlerFunc {
+func (c *UserController) Fetch(userRepo models.UserRepo, userService models.UserService) http.HandlerFunc {
 	return func(writer http.ResponseWriter, request *http.Request) {
 
 	}

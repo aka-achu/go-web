@@ -12,6 +12,7 @@ func Initialize() {
 	Validate = validator.New()
 }
 
+// Hash returns a sha1 hash value of the requested data
 func Hash(data []byte) string {
 	h := sha1.New()
 	h.Write(data)
