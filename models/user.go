@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"gorm.io/gorm"
 	"net/http"
 )
@@ -20,11 +21,11 @@ type User struct {
 // UserRepo is a template for the user repo method implementation
 type UserRepo interface {
 	// Creation of user given an object of user
-	Create(*User) error
+	Create(*User, context.Context) error
 	// Fetching the user object given the id of the user
-	Fetch(string) (*User, error)
+	Fetch(string, context.Context) (*User, error)
 	// Checking the existence of the requested user
-	Exists(string) bool
+	Exists(string, context.Context) bool
 }
 
 // UserController is a template for the user controller method implementation
@@ -35,8 +36,8 @@ type UserController interface {
 
 // UserService is a template for the user service method implementation
 type UserService interface {
-	Create(*User, UserRepo, string) (*User, error)
-	Fetch(string, UserRepo, string) (*User, error)
+	Create(*User, UserRepo, context.Context) (*User, error)
+	Fetch(string, UserRepo, context.Context) (*User, error)
 }
 
 // TableName return the fully qualified table name for user object

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"github.com/aka-achu/go-web/logging"
 	"github.com/aka-achu/go-web/models"
@@ -16,10 +17,13 @@ func NewUserService() *UserService {
 }
 
 // Create, registers a new user in the application
-func (*UserService) Create(user *models.User, userRepo models.UserRepo, traceID string) (*models.User, error) {
+func (*UserService) Create(user *models.User, userRepo models.UserRepo, ctx context.Context) (*models.User, error) {
+
+	// Extracting the traceID from the context
+	traceID := ctx.Value("trace_id").(string)
 
 	// Checking for the existence of the user with the requested user_name
-	if userRepo.Exists(user.UserName) {
+	if userRepo.Exists(user.UserName, ctx) {
 		logging.AppLogger.Warnf("Requested user_name already exists in the application. TraceID-%s", traceID)
 		return nil, errors.New("user_name already exists in the application")
 	}
@@ -30,7 +34,7 @@ func (*UserService) Create(user *models.User, userRepo models.UserRepo, traceID 
 	user.Password = utility.Hash([]byte(user.Password))
 
 	// Creating a record of the user object
-	if err := userRepo.Create(user); err != nil {
+	if err := userRepo.Create(user, ctx); err != nil {
 		logging.RepoLogger.Errorf("Failed to create the request user. Error-%v TraceID-%s",
 			err, traceID)
 		return nil, err
@@ -42,10 +46,13 @@ func (*UserService) Create(user *models.User, userRepo models.UserRepo, traceID 
 }
 
 // Fetch, retrieves the requested user details
-func (*UserService) Fetch(userName string, userRepo models.UserRepo, traceID string) (*models.User, error) {
+func (*UserService) Fetch(userName string, userRepo models.UserRepo,  ctx context.Context) (*models.User, error) {
+
+	// Extracting the traceID from the context
+	traceID := ctx.Value("trace_id").(string)
 
 	// Fetching the requested user details
-	if user, err := userRepo.Fetch(userName); err != nil {
+	if user, err := userRepo.Fetch(userName, ctx); err != nil {
 		logging.RepoLogger.Errorf("Failed to fetch the request user details. Error-%v TraceID-%s",
 			err, traceID)
 		return nil, err

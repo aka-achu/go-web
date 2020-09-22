@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"errors"
 	"github.com/aka-achu/go-web/models"
 	"gorm.io/gorm"
@@ -18,7 +19,7 @@ func NewUserRepo(db *gorm.DB) *UserRepo {
 }
 
 // Create, inserts a user record in the database
-func (r *UserRepo) Create(user *models.User) error {
+func (r *UserRepo) Create(user *models.User, ctx context.Context) error {
 	return r.db.
 		Table(user.TableName()).
 		Create(user).
@@ -26,7 +27,7 @@ func (r *UserRepo) Create(user *models.User) error {
 }
 
 // Fetch, return a user record from the database for a given user_id
-func (r *UserRepo) Fetch(userName string) (*models.User, error) {
+func (r *UserRepo) Fetch(userName string, ctx context.Context) (*models.User, error) {
 	var queryResult models.User
 	return &queryResult, r.db.
 		Table(queryResult.TableName()).
@@ -36,7 +37,7 @@ func (r *UserRepo) Fetch(userName string) (*models.User, error) {
 }
 
 // Exists, returns existence status of the requested user
-func (r *UserRepo) Exists(userName string) bool {
-	_, err := r.Fetch(userName)
+func (r *UserRepo) Exists(userName string, ctx context.Context) bool {
+	_, err := r.Fetch(userName, ctx)
 	return !errors.Is(err, gorm.ErrRecordNotFound)
 }

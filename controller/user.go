@@ -44,7 +44,7 @@ func (c *UserController) Create(userRepo models.UserRepo, userService models.Use
 		}
 
 		// Using the user creation service to create the requested user for the application
-		if user, err := userService.Create(&userCreationRequest, userRepo, requestTraceID); err != nil {
+		if user, err := userService.Create(&userCreationRequest, userRepo, r.Context()); err != nil {
 			logging.AppLogger.Errorf("Failed to create the requested user. Error-%v TraceID-%s",
 				err, requestTraceID)
 			response.InternalServerError(w, "102", err.Error())
@@ -66,7 +66,7 @@ func (c *UserController) Fetch(userRepo models.UserRepo, userService models.User
 		userName := mux.Vars(r)["user_name"]
 
 		// Fetching the requested user details
-		if user, err := userService.Fetch(userName, userRepo, requestTraceID); err != nil {
+		if user, err := userService.Fetch(userName, userRepo,  r.Context()); err != nil {
 			logging.AppLogger.Errorf("Failed to fetch the requested user. Error-%v TraceID-%s",
 				err, requestTraceID)
 			response.InternalServerError(w, "104", err.Error())
