@@ -33,9 +33,10 @@ type UserController interface {
 	Fetch(UserRepo, UserService) http.HandlerFunc
 }
 
-// UserController is a template for the user service method implementation
+// UserService is a template for the user service method implementation
 type UserService interface {
 	Create(*User, UserRepo, string) (*User, error)
+	Fetch(string, UserRepo, string) (*User, error)
 }
 
 // TableName return the fully qualified table name for user object

@@ -69,5 +69,5 @@ func InitUserRoute(
 	// Creating a sub-router for common path
 	var userRouter = r.PathPrefix("/api/v1/user").Subrouter()
 	userRouter.HandleFunc("/create", userController.Create(userRepo, userService)).Methods("POST")
-	userRouter.HandleFunc("/fetch", userController.Fetch(userRepo, userService)).Methods("GET")
+	userRouter.HandleFunc("/fetch/{user_name}", userController.Fetch(userRepo, userService)).Methods("GET")
 }

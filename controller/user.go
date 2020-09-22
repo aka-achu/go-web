@@ -6,6 +6,7 @@ import (
 	"github.com/aka-achu/go-web/models"
 	"github.com/aka-achu/go-web/response"
 	"github.com/aka-achu/go-web/utility"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
@@ -57,7 +58,24 @@ func (c *UserController) Create(userRepo models.UserRepo, userService models.Use
 
 // Fetch returns a handle function to process a user fetch request
 func (c *UserController) Fetch(userRepo models.UserRepo, userService models.UserService) http.HandlerFunc {
-	return func(writer http.ResponseWriter, request *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Getting the request tracing id from the request context
+		requestTraceID := r.Context().Value("trace_id").(string)
+
+		// Extracting the request user_name from the request URI
+		userName := mux.Vars(r)["user_name"]
+
+		// Fetching the requested user details
+		if user, err := userService.Fetch(userName, userRepo, requestTraceID); err != nil {
+			logging.AppLogger.Errorf("Failed to fetch the requested user. Error-%v TraceID-%s",
+				err, requestTraceID)
+			response.InternalServerError(w, "104", err.Error())
+		} else {
+			logging.AppLogger.Infof("Successfully fetched the requested user. TraceID-%s",
+				requestTraceID)
+			response.Success(w, "103","Successful fetch of requested user data", user)
+		}
+
 
 	}
 }

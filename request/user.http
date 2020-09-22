@@ -3,10 +3,13 @@ POST http://0.0.0.0:8080/api/v1/user/create
 Content-Type: application/json
 
 {
-  "user_name": "aka-achu-2",
+  "user_name": "aka-achu-3",
   "password" : "password",
   "first_name": "Achyuta",
   "last_name": "Das",
   "employee_id": "EMP001",
   "age": 23
 }
+
+### User fetch  request
+GET http://0.0.0.0:8080/api/v1/user/fetch/aka-achu

@@ -40,3 +40,18 @@ func (*UserService) Create(user *models.User, userRepo models.UserRepo, traceID 
 		return user, nil
 	}
 }
+
+// Fetch, retrieves the requested user details
+func (*UserService) Fetch(userName string, userRepo models.UserRepo, traceID string) (*models.User, error) {
+
+	// Fetching the requested user details
+	if user, err := userRepo.Fetch(userName); err != nil {
+		logging.RepoLogger.Errorf("Failed to fetch the request user details. Error-%v TraceID-%s",
+			err, traceID)
+		return nil, err
+	} else {
+		logging.RepoLogger.Infof("Successfully fetched the requested user.TraceID-%s", traceID)
+		user.Password = ""
+		return user, err
+	}
+}
