@@ -49,7 +49,7 @@ func (c *UserController) Create(userRepo models.UserRepo, userService models.Use
 				err, requestTraceID)
 			response.InternalServerError(w, "102", err.Error())
 		} else {
-			logging.AppLogger.Infof("Successfully created the requested user.TraceID-%s",
+			logging.AppLogger.Infof("Successfully created the requested user. TraceID-%s",
 				requestTraceID)
 			response.Success(w, "103","Successful creation of requested user", user)
 		}

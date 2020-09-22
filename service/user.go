@@ -39,7 +39,7 @@ func (*UserService) Create(user *models.User, userRepo models.UserRepo, ctx cont
 			err, traceID)
 		return nil, err
 	} else {
-		logging.RepoLogger.Infof("Successfully created the requested user.TraceID-%s", traceID)
+		logging.RepoLogger.Infof("Successfully created the requested user. TraceID-%s", traceID)
 		user.Password = ""
 		return user, nil
 	}
@@ -57,7 +57,7 @@ func (*UserService) Fetch(userName string, userRepo models.UserRepo,  ctx contex
 			err, traceID)
 		return nil, err
 	} else {
-		logging.RepoLogger.Infof("Successfully fetched the requested user.TraceID-%s", traceID)
+		logging.RepoLogger.Infof("Successfully fetched the requested user. TraceID-%s", traceID)
 		user.Password = ""
 		return user, err
 	}
