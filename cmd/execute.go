@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"github.com/aka-achu/go-web/controller"
 	"github.com/aka-achu/go-web/middleware"
 	"github.com/aka-achu/go-web/models"
@@ -11,7 +12,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
+	"os/signal"
+	"time"
 )
 
 // Execute, initializes the web application
@@ -49,20 +51,38 @@ func Execute() {
 		repo.NewUserRepo(db),
 		service.NewAuthenticationService(),
 	)
-
-	if os.Getenv("BUILD") == "Prod" {
-		log.Fatal(http.ListenAndServeTLS(
-			os.Getenv("SERVER_ADDRESS"),
-			filepath.Join(os.Getenv("PATH_TO_CERTIFICATE")),
-			filepath.Join(os.Getenv("PATH_TO_KEY")),
-			router,
-		))
-	} else {
-		log.Fatal(http.ListenAndServe(
-			os.Getenv("SERVER_ADDRESS"),
-			router,
-		))
+	server := &http.Server{
+		Addr:              os.Getenv("SERVER_ADDRESS"),
+		Handler:           router,
+		ReadTimeout:       5 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       15 * time.Second,
 	}
+
+	done := make(chan bool)
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+
+	go func() {
+		<-quit
+		log.Println("Server is shutting down...")
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		server.SetKeepAlivesEnabled(false)
+		if err := server.Shutdown(ctx); err != nil {
+			log.Fatalf("Could not gracefully shutdown the server: %v\n", err)
+		}
+		close(done)
+	}()
+
+	log.Println("Server has started at", os.Getenv("SERVER_ADDRESS"))
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Could not listen on %s: %v\n", os.Getenv("SERVER_ADDRESS"), err)
+	}
+	<-done
+	log.Println("Server has stopped")
+
 }
 
 // InitUserRoute, registers user handle function in the given router
