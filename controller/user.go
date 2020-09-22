@@ -73,7 +73,7 @@ func (c *UserController) Fetch(userRepo models.UserRepo, userService models.User
 		} else {
 			logging.AppLogger.Infof("Successfully fetched the requested user. TraceID-%s",
 				requestTraceID)
-			response.Success(w, "103","Successful fetch of requested user data", user)
+			response.Success(w, "105","Successful fetch of requested user data", user)
 		}
 
 

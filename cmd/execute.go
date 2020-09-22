@@ -41,7 +41,18 @@ func Execute() {
 	}
 
 	// Registering handle functions
-	InitUserRoute(router, controller.NewUserController(), repo.NewUserRepo(db), service.NewUserService())
+	InitUserRoute(
+		router,
+		controller.NewUserController(),
+		repo.NewUserRepo(db),
+		service.NewUserService(),
+	)
+	InitAuthenticationRoute(
+		router,
+		controller.NewUserController(),
+		repo.NewUserRepo(db),
+		service.NewAuthenticationService(),
+	)
 
 	if os.Getenv("BUILD") == "Prod" {
 		log.Fatal(http.ListenAndServeTLS(
@@ -58,7 +69,7 @@ func Execute() {
 	}
 }
 
-// InitUserRoute, registers the handle function in the given router
+// InitUserRoute, registers user handle function in the given router
 func InitUserRoute(
 	r *mux.Router,
 	userController models.UserController,
@@ -68,6 +79,21 @@ func InitUserRoute(
 
 	// Creating a sub-router for common path
 	var userRouter = r.PathPrefix("/api/v1/user").Subrouter()
-	userRouter.HandleFunc("/create", userController.Create(userRepo, userService)).Methods("POST")
-	userRouter.HandleFunc("/fetch/{user_name}", userController.Fetch(userRepo, userService)).Methods("GET")
+	userRouter.HandleFunc("/create", userController.Create(userRepo, userService)).
+		Methods("POST")
+	userRouter.HandleFunc("/fetch/{user_name}", userController.Fetch(userRepo, userService)).
+		Methods("GET")
+}
+
+// InitAuthenticationRoute, registers authentication handle function in the given router
+func InitAuthenticationRoute(
+	r *mux.Router,
+	authController models.AuthenticationController,
+	userRepo models.UserRepo,
+	authService models.AuthenticationService,
+) {
+
+	// Creating a sub-router for common path
+	var authRouter = r.PathPrefix("/api/v1/auth").Subrouter()
+	authRouter.HandleFunc("/login", authController.Login(userRepo, authService)).Methods("POST")
 }
