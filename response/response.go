@@ -39,3 +39,9 @@ func Success(w http.ResponseWriter, code string, message string, data interface{
 	w.WriteHeader(http.StatusOK)
 	_ = json.NewEncoder(w).Encode(getResponseBody(code, message, data))
 }
+
+func UnAuthorized(w http.ResponseWriter, code string, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusUnauthorized)
+	_ = json.NewEncoder(w).Encode(getResponseBody(code, message))
+}

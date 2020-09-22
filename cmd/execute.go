@@ -26,10 +26,6 @@ func Execute() {
 
 	// Creating a new router
 	router := mux.NewRouter()
-	// Initializing the middlewares
-	router.Use(
-		middleware.NoAuthLogging,
-	)
 	// Handling cors access
 	router.Use(
 		cors.AllowAll().Handler,
@@ -79,6 +75,7 @@ func InitUserRoute(
 
 	// Creating a sub-router for common path
 	var userRouter = r.PathPrefix("/api/v1/user").Subrouter()
+	userRouter.Use(middleware.AuthLogging)
 	userRouter.HandleFunc("/create", userController.Create(userRepo, userService)).
 		Methods("POST")
 	userRouter.HandleFunc("/fetch/{user_name}", userController.Fetch(userRepo, userService)).
@@ -95,5 +92,6 @@ func InitAuthenticationRoute(
 
 	// Creating a sub-router for common path
 	var authRouter = r.PathPrefix("/api/v1/auth").Subrouter()
+	authRouter.Use(middleware.NoAuthLogging)
 	authRouter.HandleFunc("/login", authController.Login(userRepo, authService)).Methods("POST")
 }
