@@ -21,6 +21,7 @@ func NewUserRepo(db *gorm.DB) *UserRepo {
 // Create, inserts a user record in the database
 func (r *UserRepo) Create(user *models.User, ctx context.Context) error {
 	return r.db.
+		WithContext(ctx).
 		Table(user.TableName()).
 		Create(user).
 		Error
@@ -30,6 +31,7 @@ func (r *UserRepo) Create(user *models.User, ctx context.Context) error {
 func (r *UserRepo) Fetch(userName string, ctx context.Context) (*models.User, error) {
 	var queryResult models.User
 	return &queryResult, r.db.
+		WithContext(ctx).
 		Table(queryResult.TableName()).
 		Where("user_name = ?", userName).
 		First(&queryResult).
