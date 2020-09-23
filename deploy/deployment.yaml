@@ -4,24 +4,22 @@ metadata:
   name: go-web-deployment
   namespace: default
   labels:
-    app.kubernetes.io/name: sample-web
-    app.kubernetes.io/version: 1.0.1
+    app.kubernetes.io/name: go-web
+    app.kubernetes.io/version: 1.0.0
     app.kubernetes.io/component: backend
-    app.kubernetes.io/part-of: sample-application
+    app.kubernetes.io/part-of: sample-web-application
 
 spec:
   selector:
     matchLabels:
-      app: sample-web
+      app: go-web
   replicas: 2
   template:
     metadata:
       labels:
-        app: sample-web
+        app: go-web
     spec:
       containers:
-      - name: sample-web-go
-        image: docker.pkg.github.com/aka-achu/go-web/sample:latest
+      - name: sample-web-application
+        image: runq/go-web:latest
         imagePullPolicy: Always
-      imagePullSecrets:
-      - name: registry-secret
