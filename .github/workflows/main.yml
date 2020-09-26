@@ -13,7 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - run: docker build . --file build/Dockerfile --tag runq/go-web:latest
-      - run: docker login -u akaachu -p ${{ secrets.HUB_ACCESS_TOKEN }}
-      - run: docker push runq/go-web:latest
+      - 
+          name: Login to Dockerhub
+          uses: docker/login-action@v1
+          with: 
+            username: akaachu
+            password: ${{ secrets.HUB_ACCESS_TOKEN }}
+      -
+         name: Build and Push
+         id: docker_build
+         uses: docker/build-push-action@v2
+         with:
+           context: ./
+           file: build/Dockerfile
+           push: true
+           tags: runq/go-web:latest
+      -
+         name: Image digest
+         run: echo ${{ steps.docker_build.outputs.digest }}
