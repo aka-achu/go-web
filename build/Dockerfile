@@ -3,11 +3,12 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -a -installsuffix cgo -o main ./main.go
+RUN go build -o go-web ./main.go
 
 FROM ubuntu:latest
 WORKDIR /root/
 COPY --from=builder /app/main  .
 COPY --from=builder /app/.env  .
+COPY --from=builder /app/cert/  ./cert
 EXPOSE 8080
-CMD ["./main"]
+CMD ["./go-web"]
