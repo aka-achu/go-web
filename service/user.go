@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"errors"
 	"github.com/aka-achu/go-web/logging"
 	"github.com/aka-achu/go-web/models"
+	"github.com/aka-achu/go-web/svc_error"
 	"github.com/aka-achu/go-web/utility"
 	"github.com/google/uuid"
 )
@@ -25,7 +25,7 @@ func (*UserService) Create(user *models.User, userRepo models.UserRepo, ctx cont
 	// Checking for the existence of the user with the requested user_name
 	if userRepo.Exists(user.UserName, ctx) {
 		logging.AppLogger.Warnf("Requested user_name already exists in the application. TraceID-%s", traceID)
-		return nil, errors.New("user_name already exists in the application")
+		return nil, svc_error.ErrUserAlreadyExists
 	}
 
 	// Generating a unique id for the user object
@@ -37,7 +37,7 @@ func (*UserService) Create(user *models.User, userRepo models.UserRepo, ctx cont
 	if err := userRepo.Create(user, ctx); err != nil {
 		logging.RepoLogger.Errorf("Failed to create the request user. Error-%v TraceID-%s",
 			err, traceID)
-		return nil, err
+		return nil, svc_error.ErrFailedToCreateUser
 	} else {
 		logging.RepoLogger.Infof("Successfully created the requested user. TraceID-%s", traceID)
 		user.Password = ""
@@ -55,10 +55,10 @@ func (*UserService) Fetch(userName string, userRepo models.UserRepo,  ctx contex
 	if user, err := userRepo.Fetch(userName, ctx); err != nil {
 		logging.RepoLogger.Errorf("Failed to fetch the request user details. Error-%v TraceID-%s",
 			err, traceID)
-		return nil, err
+		return nil, svc_error.ErrFailedToFetchUserDetails
 	} else {
 		logging.RepoLogger.Infof("Successfully fetched the requested user. TraceID-%s", traceID)
 		user.Password = ""
-		return user, err
+		return user, nil
 	}
 }

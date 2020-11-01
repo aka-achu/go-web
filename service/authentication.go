@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/aka-achu/go-web/logging"
 	"github.com/aka-achu/go-web/models"
+	"github.com/aka-achu/go-web/svc_error"
 	"github.com/aka-achu/go-web/utility"
 	"gorm.io/gorm"
 )
@@ -35,23 +36,23 @@ func (*AuthenticationService) Login(
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		logging.RepoLogger.Errorf("Request user does not exist in the application. Error-%v TraceID-%s",
 			err, traceID)
-		return nil, errors.New("user does not exist in the application")
+		return nil, svc_error.ErrUserDoesNotExists
 	}
 	if err != nil {
 		logging.RepoLogger.Errorf("Failed to fetch the request user details. Error-%v TraceID-%s",
 			err, traceID)
-		return nil, err
+		return nil, svc_error.ErrFailedToFetchUserDetails
 	}
 
 	// Validating the password
 	if utility.Hash([]byte(authRequest.Password)) != user.Password {
-		return nil, errors.New("invalid user credential")
+		return nil, svc_error.ErrInvalidCredential
 	} else {
 		// Generating an access_token for the verified user
 		accessToken, err := utility.CreateToken(authRequest.UserName)
 		if err != nil {
 			logging.AppLogger.Errorf("Failed to generate an access_token. Error-%v TraceID-%s", err, traceID)
-			return nil, err
+			return nil, svc_error.ErrCreatingAccessToken
 		}
 		return &models.AuthenticationResponse{
 			AuthenticationStatus: true,
