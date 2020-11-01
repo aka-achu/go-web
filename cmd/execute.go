@@ -51,29 +51,7 @@ func Execute() {
 		service.NewAuthenticationService(),
 	)
 
-	server := &http.Server{
-		Addr:         os.Getenv("SERVER_ADDRESS"),
-		Handler:      router,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  15 * time.Second,
-		TLSConfig: &tls.Config{
-			PreferServerCipherSuites: true,
-			CurvePreferences: []tls.CurveID{
-				tls.CurveP256,
-				tls.X25519, // Go 1.8 only
-			},
-			MinVersion: tls.VersionTLS12,
-			CipherSuites: []uint16{
-				tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-				tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-				tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305, // Go 1.8 only
-				tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,   // Go 1.8 only
-				tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-				tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-			},
-		},
-	}
+	server := getServer(os.Getenv("SSL") == "True", router)
 
 	done := make(chan bool)
 	quit := make(chan os.Signal, 1)
@@ -93,12 +71,52 @@ func Execute() {
 	}()
 
 	log.Println("Server has started at", os.Getenv("SERVER_ADDRESS"))
-	if err := server.ListenAndServeTLS(
-		os.Getenv("SSL_CERT"),
-		os.Getenv("SSL_KEY"),
-	); err != nil && err != http.ErrServerClosed {
-		log.Fatalf("Could not listen on %s: %v\n", os.Getenv("SERVER_ADDRESS"), err)
+	if os.Getenv("SSL") == "True" {
+		if err := server.ListenAndServeTLS(
+			os.Getenv("SSL_CERT"),
+			os.Getenv("SSL_KEY"),
+		); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Could not listen on %s: %v\n", os.Getenv("SERVER_ADDRESS"), err)
+		}
+	} else {
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Could not listen on %s: %v\n", os.Getenv("SERVER_ADDRESS"), err)
+		}
 	}
+
 	<-done
 	log.Println("Server has stopped")
+}
+
+func getServer(ssl bool, router *mux.Router) *http.Server {
+	if ssl {
+		return &http.Server{
+			Addr:         os.Getenv("SERVER_ADDRESS"),
+			Handler:      router,
+			ReadTimeout:  5 * time.Second,
+			WriteTimeout: 10 * time.Second,
+			IdleTimeout:  15 * time.Second,
+			TLSConfig: &tls.Config{
+				PreferServerCipherSuites: true,
+				CurvePreferences: []tls.CurveID{
+					tls.CurveP256,
+					tls.X25519, // Go 1.8 only
+				},
+				MinVersion: tls.VersionTLS12,
+				CipherSuites: []uint16{
+					tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+					tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+					tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305, // Go 1.8 only
+					tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,   // Go 1.8 only
+					tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+					tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+				},
+			},
+		}
+	} else {
+		return &http.Server{
+			Addr:    os.Getenv("SERVER_ADDRESS"),
+			Handler: router,
+		}
+	}
 }

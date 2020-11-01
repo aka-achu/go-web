@@ -40,17 +40,8 @@ func getLogWriter(fileName string) zapcore.WriteSyncer {
 
 func Initialize() {
 
-	// Based on the application build, determining the logging path
-	var build = os.Getenv("BUILD")
-	var path string
-	if build == "Dev" {
-		path, _ = os.Getwd()
-		path = filepath.Join(path, "log")
-	} else if build == "Prod" {
-		path = filepath.Join("var", "log", "web")
-	} else {
-		log.Fatal("Unexpected BUILD value in .env file")
-	}
+	path, _ := os.Getwd()
+	path = filepath.Join(path, "log")
 
 	// Validating the existence of the logging path
 	if _, err := os.Stat(path); os.IsNotExist(err) {
