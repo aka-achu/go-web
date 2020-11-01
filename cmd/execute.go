@@ -31,10 +31,20 @@ func Execute() {
 	router.Use(
 		cors.AllowAll().Handler,
 	)
+
 	// Getting a new database connection
 	db, err := repo.GetConnection()
 	if err != nil {
-		panic(err)
+		log.Fatalf("[ERROR] Failed to establish a connection to the database. Err-%v", err)
+	} else {
+		log.Println("[INFO] Established a connection with the repo")
+	}
+
+	// Migrating repo schemas
+	if err := repo.Migrate(db); err != nil {
+		log.Fatalf("[ERROR] Failed to migrate repo schema. Err-%v", err)
+	} else {
+		log.Println("[INFO] Repo schemas migrated")
 	}
 
 	// Registering handle functions
@@ -59,33 +69,33 @@ func Execute() {
 
 	go func() {
 		<-quit
-		log.Println("Server is shutting down...")
+		log.Println("[INFO] Server is shutting down...")
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 
 		server.SetKeepAlivesEnabled(false)
 		if err := server.Shutdown(ctx); err != nil {
-			log.Fatalf("Could not gracefully shutdown the server: %v\n", err)
+			log.Fatalf("[ERROR] Could not gracefully shutdown the server: Err-%v", err)
 		}
 		close(done)
 	}()
 
-	log.Println("Server has started at", os.Getenv("SERVER_ADDRESS"))
+	log.Println("[INFO] Server has started at", os.Getenv("SERVER_ADDRESS"))
 	if os.Getenv("SSL") == "True" {
 		if err := server.ListenAndServeTLS(
 			os.Getenv("SSL_CERT"),
 			os.Getenv("SSL_KEY"),
 		); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Could not listen on %s: %v\n", os.Getenv("SERVER_ADDRESS"), err)
+			log.Fatalf("[ERROR] Could not listen on %s: Err-%v", os.Getenv("SERVER_ADDRESS"), err)
 		}
 	} else {
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Could not listen on %s: %v\n", os.Getenv("SERVER_ADDRESS"), err)
+			log.Fatalf("[ERROR] Could not listen on %s: Err-%v", os.Getenv("SERVER_ADDRESS"), err)
 		}
 	}
 
 	<-done
-	log.Println("Server has stopped")
+	log.Println("[INFO] Server has stopped")
 }
 
 func getServer(ssl bool, router *mux.Router) *http.Server {

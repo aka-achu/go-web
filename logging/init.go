@@ -7,13 +7,15 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // Declaring logger variable for global access
 var (
-	AppLogger     *zap.SugaredLogger
-	RequestLogger *zap.SugaredLogger
-	RepoLogger    *zap.SugaredLogger
+	ControllerLogger *zap.SugaredLogger
+	ServiceLogger *zap.SugaredLogger
+	RequestLogger    *zap.SugaredLogger
+	SQLLogger        *log.Logger
 )
 
 func getEncoder() zapcore.Encoder {
@@ -46,15 +48,23 @@ func Initialize() {
 	// Validating the existence of the logging path
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		if err := os.Mkdir(path, os.ModePerm); err != nil {
-			log.Fatal("Failed to create the folder for storing the logs", err)
+			log.Fatalf("[ERROR] Failed to create the folder for storing the logs. Err-%v", err)
 		}
 	}
 
 	// Initializing the declared logging variables
-	AppLogger = zap.New(
+	ControllerLogger = zap.New(
 		zapcore.NewCore(
 			getEncoder(),
-			getLogWriter(filepath.Join(path, "app.log")),
+			getLogWriter(filepath.Join(path, "controller.log")),
+			zapcore.InfoLevel,
+		),
+		zap.AddCaller(),
+	).Sugar()
+	ServiceLogger = zap.New(
+		zapcore.NewCore(
+			getEncoder(),
+			getLogWriter(filepath.Join(path, "service.log")),
 			zapcore.InfoLevel,
 		),
 		zap.AddCaller(),
@@ -67,12 +77,19 @@ func Initialize() {
 		),
 		zap.AddCaller(),
 	).Sugar()
-	RepoLogger = zap.New(
-		zapcore.NewCore(
-			getEncoder(),
-			getLogWriter(filepath.Join(path, "repo.log")),
-			zapcore.InfoLevel,
-		),
-		zap.AddCaller(),
-	).Sugar()
+
+	l, err := eidos.New(filepath.Join(path, "sql.log"), &eidos.Options{
+		Size:             10,
+		Period:           24 * time.Hour,
+		RetentionPeriod:  7,
+		Compress:         true,
+		CompressionLevel: 9,
+		LocalTime:        true,
+	}, &eidos.Callback{})
+	if err != nil {
+		log.Fatalf("[ERROR] Failed to create log file. Err-%v", err)
+	}
+	SQLLogger = log.New(l, "", log.LstdFlags|log.Lshortfile)
+
+	log.Println("[INFO] Logging interfaces initialized")
 }

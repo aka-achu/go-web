@@ -28,7 +28,7 @@ func (c *UserController) Create(userRepo models.UserRepo, userService models.Use
 		// Decoding the request body data to models.User object
 		err := json.NewDecoder(r.Body).Decode(&userCreationRequest)
 		if err != nil {
-			logging.AppLogger.Errorf("Failed to decode the request body. Error-%v TraceID-%s",
+			logging.ControllerLogger.Errorf("Failed to decode the request body. Error-%v TraceID-%s",
 				err, requestTraceID)
 			response.BadRequest(w, "100", err.Error())
 			return
@@ -37,7 +37,7 @@ func (c *UserController) Create(userRepo models.UserRepo, userService models.Use
 		// Validating the request object for required fields
 		err = utility.Validate.Struct(userCreationRequest)
 		if err != nil {
-			logging.AppLogger.Errorf("Failed to validate the request body. Error-%v TraceID-%s",
+			logging.ControllerLogger.Errorf("Failed to validate the request body. Error-%v TraceID-%s",
 				err, requestTraceID)
 			response.BadRequest(w, "101", err.Error())
 			return
@@ -45,11 +45,11 @@ func (c *UserController) Create(userRepo models.UserRepo, userService models.Use
 
 		// Using the user creation service to create the requested user for the application
 		if user, err := userService.Create(&userCreationRequest, userRepo, r.Context()); err != nil {
-			logging.AppLogger.Errorf("Failed to create the requested user. Error-%v TraceID-%s",
+			logging.ControllerLogger.Errorf("Failed to create the requested user. Error-%v TraceID-%s",
 				err, requestTraceID)
 			response.InternalServerError(w, "102", err.Error())
 		} else {
-			logging.AppLogger.Infof("Successfully created the requested user. TraceID-%s",
+			logging.ControllerLogger.Infof("Successfully created the requested user. TraceID-%s",
 				requestTraceID)
 			response.Success(w, "103","Successful creation of requested user", user)
 		}
@@ -67,11 +67,11 @@ func (c *UserController) Fetch(userRepo models.UserRepo, userService models.User
 
 		// Fetching the requested user details
 		if user, err := userService.Fetch(userName, userRepo,  r.Context()); err != nil {
-			logging.AppLogger.Errorf("Failed to fetch the requested user. Error-%v TraceID-%s",
+			logging.ControllerLogger.Errorf("Failed to fetch the requested user. Error-%v TraceID-%s",
 				err, requestTraceID)
 			response.InternalServerError(w, "104", err.Error())
 		} else {
-			logging.AppLogger.Infof("Successfully fetched the requested user. TraceID-%s",
+			logging.ControllerLogger.Infof("Successfully fetched the requested user. TraceID-%s",
 				requestTraceID)
 			response.Success(w, "105","Successful fetch of requested user data", user)
 		}

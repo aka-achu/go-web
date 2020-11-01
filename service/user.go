@@ -24,7 +24,7 @@ func (*UserService) Create(user *models.User, userRepo models.UserRepo, ctx cont
 
 	// Checking for the existence of the user with the requested user_name
 	if userRepo.Exists(user.UserName, ctx) {
-		logging.AppLogger.Warnf("Requested user_name already exists in the application. TraceID-%s", traceID)
+		logging.ServiceLogger.Warnf("Requested user_name already exists in the application. TraceID-%s", traceID)
 		return nil, svc_error.ErrUserAlreadyExists
 	}
 
@@ -35,11 +35,11 @@ func (*UserService) Create(user *models.User, userRepo models.UserRepo, ctx cont
 
 	// Creating a record of the user object
 	if err := userRepo.Create(user, ctx); err != nil {
-		logging.RepoLogger.Errorf("Failed to create the request user. Error-%v TraceID-%s",
+		logging.ServiceLogger.Errorf("Failed to create the request user. Error-%v TraceID-%s",
 			err, traceID)
 		return nil, svc_error.ErrFailedToCreateUser
 	} else {
-		logging.RepoLogger.Infof("Successfully created the requested user. TraceID-%s", traceID)
+		logging.ServiceLogger.Infof("Successfully created the requested user. TraceID-%s", traceID)
 		user.Password = ""
 		return user, nil
 	}
@@ -53,11 +53,11 @@ func (*UserService) Fetch(userName string, userRepo models.UserRepo,  ctx contex
 
 	// Fetching the requested user details
 	if user, err := userRepo.Fetch(userName, ctx); err != nil {
-		logging.RepoLogger.Errorf("Failed to fetch the request user details. Error-%v TraceID-%s",
+		logging.ServiceLogger.Errorf("Failed to fetch the request user details. Error-%v TraceID-%s",
 			err, traceID)
 		return nil, svc_error.ErrFailedToFetchUserDetails
 	} else {
-		logging.RepoLogger.Infof("Successfully fetched the requested user. TraceID-%s", traceID)
+		logging.ServiceLogger.Infof("Successfully fetched the requested user. TraceID-%s", traceID)
 		user.Password = ""
 		return user, nil
 	}
